@@ -15,7 +15,6 @@ function generateUUIDV4() {
     });
 }
 
-
 // ==================== DATABASE ==========================
 let DATABASE = localStorage.getItem('DATABASE') ? JSON.parse(localStorage.getItem('DATABASE')) : {
     PRODUCTS: [],
@@ -42,14 +41,14 @@ let ACCOUNTS = DATABASE.ACCOUNTS;
 let ORDERS = DATABASE.ORDERS;
 
 // ==================== SESSION STORE ==========================
-let SESSION = sessionStorage.getItem('SESSION') ? JSON.parse(sessionStorage.getItem('SESSION')) : null;
+let LOCAL = JSON.parse(localStorage.getItem('storeData')) || [];
 
 // ========================================= CART CLIENT ===========================================
 let btn_cart = document.getElementById('btn-cart');
 let cart_overlay = document.getElementById('cart-overlay');
 let close_cart = document.getElementById('close-cart');
 let cart_tbody = document.getElementById('cart-tbody');
-// let cart_quantity = document.getElementById('cart-quantity');
+let cart_quantity = document.getElementById('cart-quantity');
 
 btn_cart.addEventListener('click', cartOverlayOn);
 close_cart.addEventListener('click', cartOverlayOff);
@@ -67,7 +66,7 @@ function cartOverlayOff() {
 function renderCartItems() {
     let checkout = document.getElementById('checkout');
     let total_inner = document.getElementById('total');
-    let products = SESSION.products;
+    let products = LOCAL.storeData;
     let contents = '';
     let total = 0;
 
@@ -80,7 +79,7 @@ function renderCartItems() {
             contents += `
             <tr>
                 <td>
-                    <img src="images/${p.image}" alt="">
+                    <img src="./assets/images${p.image}" alt="">
                 </td>
                 <td>
                     <p>${p.productName}</p>
@@ -102,6 +101,7 @@ function renderCartItems() {
         cart_tbody.innerHTML = contents;
     }
 }
+renderCartItems();
 
 
 // ========================================= FORM ACCOUNT CLIENT ===========================================
@@ -135,7 +135,7 @@ let password = document.getElementById('password');
 let register_btn = document.getElementById('register');
 register_btn.addEventListener('click', addNewAccount);
 
-function addNewAccount() {
+function addNewAccount(name) {
     let account = {
         ID: generateUUIDV4(),
         username: name.value,
@@ -368,7 +368,7 @@ function loadProduct(PRODUCTS) {
 function renderProduct(product) {
     let contents = `
         <div class="card" style="width: 18rem;" data-aos="fade-left">
-            <img src="images/${product.image}" class="card-img-top" alt="">
+            <img src="./assets/images${product.image}" class="card-img-top" alt="">
             <div class="card-body">
                 <h5 class="card-title">${product.productName}</h5>
                 <p class="card-text">${formatter.format(product.price)}</p>
@@ -381,7 +381,7 @@ function renderProduct(product) {
 function renderExtraProduct(product) {
     let contents = `
     <div class="card text-center col-3 mb-2" data-aos="zoom-in-down">
-        <img src="images/${product.image}" class="card-img-top" alt="">
+        <img src="./assets/images/${product.image}" class="card-img-top" alt="">
         <div class="card-body">
             <h5 class="card-title">${product.productName}</h5>
             <p class="card-text">${formatter.format(product.price)}</p>
@@ -394,7 +394,7 @@ function renderExtraProduct(product) {
 function renderAllProduct(product) {
     let contents = `
         <div class="card col-3 text-center mb-2" data-aos="zoom-in-right">
-            <img src="images/${product.image}" class="card-img-top">
+            <img src="./assets/images/${product.image}" class="card-img-top">
             <div class="card-body">
                 <h5 class="card-title">${product.productName}</h5>
                 <p class="card-text">${formatter.format(product.price)}</p>
@@ -457,7 +457,7 @@ addCarts.forEach(function (addCart) {
 
 function addToCart() {
     let productCode = this.getAttribute('data-code');
-    let products = SESSION.products;
+    let products = LOCAL.products;
     let productSaveCart;
 
     PRODUCTS.forEach(p => {
@@ -490,11 +490,11 @@ function addToCart() {
         }
 
     } else {
-        SESSION.products = [];
-        SESSION.products.push(product);
+        LOCAL.products = [];
+        LOCAL.products.push(product);
     }
 
-    sessionStorage.setItem('SESSION', JSON.stringify(SESSION));
+    sessionStorage.setItem('SESSION', JSON.stringify(LOCAL));
     alert('Thêm Sản Phẩm Vào Giỏ Hàng Thành Công !');
 
 }
@@ -658,7 +658,6 @@ function actOrder() {
         sessionStorage.setItem('SESSION', JSON.stringify(SESSION));
         location.reload();
     }
-
     order_btn.disabled = false;
 }
 
@@ -675,11 +674,12 @@ function validateForm() {
         }
     })
 
-    // Stupid again :))
+  
     if (check > 0) {
         order_btn.disabled = true;
         return false;
     } else {
         return true;
-    }
+    }   
 }
+

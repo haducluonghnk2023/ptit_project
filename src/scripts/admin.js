@@ -83,7 +83,7 @@ function renderProduct(product) {
         <tr>
             <th scope="row">${product.code}</th>
             <td>
-                <img width="120" height="80" src="images/${product.image}">
+                <img width="120" height="80" src="../assets/images/${product.image}">
             </td>
             <td>${product.productName}</td>
             <td>${product.idcategory === "0" ? "Giày Nam" : product.idcategory === "1" ? "Giày Nữ" : "Phụ Kiện"}</td>
