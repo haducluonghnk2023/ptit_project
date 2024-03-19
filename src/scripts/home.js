@@ -40,8 +40,9 @@ let PRODUCTS = DATABASE.PRODUCTS;
 let ACCOUNTS = DATABASE.ACCOUNTS;
 let ORDERS = DATABASE.ORDERS;
 
-// ==================== SESSION STORE ==========================
+// ==================== LOCAL STORE ==========================
 let LOCAL = JSON.parse(localStorage.getItem('storeData')) || [];
+// console.log(LOCAL);
 
 // ========================================= CART CLIENT ===========================================
 let btn_cart = document.getElementById('btn-cart');
@@ -79,7 +80,7 @@ function renderCartItems() {
             contents += `
             <tr>
                 <td>
-                    <img src="./assets/images${p.image}" alt="">
+                    <img src="./assets/images/${p.image}" alt="">
                 </td>
                 <td>
                     <p>${p.productName}</p>
@@ -130,7 +131,7 @@ let number = document.getElementById('number');
 let address = document.getElementById('address');
 let email = document.getElementById('email');
 let password = document.getElementById('password');
-// let condition = document.getElementById('condition');
+let condition = document.getElementById('condition');
 
 let register_btn = document.getElementById('register');
 register_btn.addEventListener('click', addNewAccount);
@@ -213,18 +214,18 @@ function authenticate(email_login, password_login) {
     return userIDAndRole;
 }
 
-window.onload = checkSession();
+window.onload = checkLocal();
 
 // Check Session Storage
-function checkSession() {
-    SESSION = JSON.parse(sessionStorage.getItem('SESSION'));
+function checkLocal() {
+    DATABASE = JSON.parse(localStorage.getItem('DATABASE'));
 
-    if (SESSION === null) {
+    if (DATABASE === null) {
         userAct.style.display = 'flex';
         userProfile.style.display = 'none';
         adminProfile.style.display = 'none';
     } else {
-        if (SESSION.role === 'User') {
+        if (DATABASE.role === 'User') {
             userAct.style.display = 'none';
             userProfile.style.display = 'block';
             adminProfile.style.display = 'none';
@@ -243,15 +244,15 @@ adminProfile.addEventListener('click', actProfileToggle);
 let logout = document.getElementById('logout');
 
 logout.addEventListener('click', function () {
-    sessionStorage.clear();
+    localStorage.clear();
     location.reload();
 })
 
 function actProfileToggle() {
-    SESSION = JSON.parse(sessionStorage.getItem('SESSION'));
+    DATABASE = JSON.parse(localStorage.getItem('DATABASE'));
 
     ACCOUNTS.forEach(function (account) {
-        if (account.ID === SESSION.userID) {
+        if (account.ID === LOCAL.userID) {
             renderProfileDetail(account);
             renderProfileOrder(account.ID);
         }
@@ -368,7 +369,7 @@ function loadProduct(PRODUCTS) {
 function renderProduct(product) {
     let contents = `
         <div class="card" style="width: 18rem;" data-aos="fade-left">
-            <img src="./assets/images${product.image}" class="card-img-top" alt="">
+            <img src="./assets/images/${product.image}" class="card-img-top" alt="">
             <div class="card-body">
                 <h5 class="card-title">${product.productName}</h5>
                 <p class="card-text">${formatter.format(product.price)}</p>
@@ -457,46 +458,39 @@ addCarts.forEach(function (addCart) {
 
 function addToCart() {
     let productCode = this.getAttribute('data-code');
-    let products = LOCAL.products;
-    let productSaveCart;
+    let products = DATABASE.ACCOUNTS;
+    let productSaveCart = products.find(p => p.code === productCode);
 
-    PRODUCTS.forEach(p => {
-        if (p.code === productCode) {
-            productSaveCart = p;
-        }
-    })
+    if (productSaveCart !== undefined) {
+        let { image, productName, price } = productSaveCart;
 
-    let { image, productName, price } = productSaveCart;
+        let product = {
+            code: productCode,
+            productName: productName,
+            price: price,
+            image: image,
+            quantity: 1
+        };
 
-    let product = {
-        code: productCode,
-        productName: productName,
-        price: price,
-        image: image,
-        quantity: 1
-    }
-
-    if (products !== undefined) {
-        let check = 0;
-        products.forEach(p => {
-            if (p.code === productCode) {
-                p.quantity = p.quantity + 1;
-                check++;
-            }
-        })
-
-        if (check === 0) {
+        let existingProduct = products.find(p => p.code === productCode);
+        if (existingProduct) {
+            existingProduct.quantity++;
+        } else {
             products.push(product);
         }
-
     } else {
-        LOCAL.products = [];
-        LOCAL.products.push(product);
+        let product = {
+            code: productCode,
+            productName: "a",
+            price: 0,
+            image: "image",
+            quantity: 1
+        };
+        products.push(product);
     }
 
-    sessionStorage.setItem('SESSION', JSON.stringify(LOCAL));
-    alert('Thêm Sản Phẩm Vào Giỏ Hàng Thành Công !');
-
+    localStorage.setItem('LOCAL', JSON.stringify(DATABASE));
+    alert('Thêm Sản Phẩm Vào Giỏ Hàng Thành Công!');
 }
 
 // ********************** CART DETAIL **********************
@@ -516,7 +510,7 @@ function showCartDetail() {
 }
 
 function renderCartDetail() {
-    let products = SESSION.products;
+    let products = DATABASE.ACCOUNTS;
     let contents = '';
     let total_price = 0;
     let total_quantity = 0;
@@ -525,7 +519,7 @@ function renderCartDetail() {
         contents += `
         <tr>
             <td>
-                <img width="50" height="25" src="images/${p.image}" alt="">
+                <img width="50" height="25" src="./assets/images/${p.image}" alt="">
             </td>
             <td>${p.productName}</td>
             <td>${formatter.format(p.price)}</td>
@@ -563,7 +557,7 @@ function renderCartDetail() {
 
 function loadUserInfo() {
     ACCOUNTS.forEach(function (account) {
-        if (account.ID === SESSION.userID) {
+        if (account.ID === LOCAL.ID) {
             renderUserInfo(account);
         }
     })
@@ -607,16 +601,16 @@ function actCartProduct(event) {
     }
 
     if (ev.matches('#remove')) {
-        let products = SESSION.products;
+        let products = LOCAL.products;
         products = products.filter(product => product.code !== data_code);
-        SESSION.products = products;
-        sessionStorage.setItem('SESSION', JSON.stringify(SESSION));
+        LOCAL.products = products;
+        localStorage.setItem('LOCAL', JSON.stringify(LOCAL));
         renderCartDetail();
     }
 }
 
 function updateCartProduct(code, nQuantity) {
-    let products = SESSION.products;
+    let products = LOCAL.products;
 
     products.forEach(p => {
         if (p.code === code) {
@@ -624,7 +618,7 @@ function updateCartProduct(code, nQuantity) {
         }
     })
 
-    sessionStorage.setItem('SESSION', JSON.stringify(SESSION));
+    localStorage.setItem('LOCAL', JSON.stringify(LOCAL));
     renderCartDetail();
 }
 
@@ -636,7 +630,7 @@ order_btn.addEventListener('click', actOrder);
 function actOrder() {
     let order = {
         orderId: generateUUIDV4(),
-        userID: SESSION.userID,
+        userID: LOCAL.userID,
         customerInfo: {
             customerName: customer_name.value,
             customerNumber: customer_number.value,
@@ -645,7 +639,7 @@ function actOrder() {
             customerNote: customer_note.value
         },
         payMethod: 'Giao Hàng Tại Nhà',
-        products: SESSION.products,
+        products: LOCAL.products,
         createDate: moment(new Date()).format("DD/MM/YYYY"),
         status: 'Đặt Hàng'
     }
@@ -654,8 +648,8 @@ function actOrder() {
         ORDERS.push(order);
         localStorage.setItem('DATABASE', JSON.stringify(DATABASE));
         alert('Đặt hàng thành công !');
-        SESSION.products = [];
-        sessionStorage.setItem('SESSION', JSON.stringify(SESSION));
+        LOCAL.products = [];
+        localStorage.setItem('LOCAL', JSON.stringify(LOCAL));
         location.reload();
     }
     order_btn.disabled = false;

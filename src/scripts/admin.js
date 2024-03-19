@@ -182,7 +182,6 @@ function checkExistProductCode(code) {
         }
     })
 
-    // Stupid :))
     if (check > 0) {
         return true;
     } else {
@@ -229,7 +228,7 @@ function actProduct(event) {
         price.value = productFilter[0].price;
         amount.value = productFilter[0].amount;
         entry.value = productFilter[0].entry;
-        image.value = productFilter[0].image;
+        image.value = productFilter[0].images;
 
         add_new.style.display = "none";
         update.style.display = "inline-block";
@@ -243,7 +242,7 @@ function actProduct(event) {
         let modals = `
                 <h6>${productDetail[0].productName}</h6>
                 <p>Code: ${productDetail[0].code} </p>
-                <img width="220" height="180" src="./assets./images${productDetail[0].image}" alt="">
+                <img width="220" height="180" src="../assets/images/${productDetail[0].image}" alt="">
                 <div class="mt-2">Giá Tiền: ${formatter.format(productDetail[0].price)}</div>
                 <div>Ngày Nhập Kho: ${productDetail[0].entry}</div>
         `;
@@ -263,7 +262,7 @@ function actProduct(event) {
 let update = document.getElementById('update');
 update.addEventListener('click', actUpdate);
 
-function actUpdate() {
+function actUpdate(name) {
     PRODUCTS.forEach(function (product) {
         if (product.code === code.value) {
 
@@ -463,7 +462,7 @@ function renderCustomerProductInfo(order) {
         contents += `
         <tr>
             <td>
-                <img width="50" height="25" src="images/${p.image}" alt="">
+                <img width="50" height="25" src="./assets/images/${p.image}" alt="">
             </td>
             <td>
               ${p.productName}  
