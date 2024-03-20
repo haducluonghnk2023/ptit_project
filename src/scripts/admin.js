@@ -479,7 +479,6 @@ function renderCustomerProductInfo(order) {
 
 function actUpdateOrderStatus() {
     let orderStatuss = document.querySelectorAll('#orderStatus');
-
     orderStatuss.forEach(orderStatus => {
         orderStatus.addEventListener('change', function () {
             ORDERS.forEach(order => {

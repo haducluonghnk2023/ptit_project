@@ -103,10 +103,10 @@ function renderCartItems() {
 
 
 // ========================================= Mẫu tài khoản khách hàng ===========================================
-let regiseter_form = document.getElementById('regiseter-form');
+let regiseter_form = document.getElementById('register-form');
 let login_form = document.getElementById('login-form');
 let login_form_area = document.getElementById('login-form-area');
-let regiseter_form_area = document.getElementById('regiseter-form-area');
+let regiseter_form_area = document.getElementById('register-form-area');
 
 regiseter_form.addEventListener('click', showRegisterForm);
 login_form.addEventListener('click', showSignForm);
@@ -237,7 +237,6 @@ userProfile.addEventListener('click', actProfileToggle);
 adminProfile.addEventListener('click', actProfileToggle);
 
 let logout = document.getElementById('logout');
-
 logout.addEventListener('click', function () {
     localStorage.clear();
     location.reload();
@@ -484,7 +483,7 @@ function addToCart() {
         products.push(product);
     }
 
-    localStorage.setItem('LOCAL', JSON.stringify(DATABASE));
+    sessionStorage.setItem('SESSION', JSON.stringify(DATABASE));
     alert('Thêm Sản Phẩm Vào Giỏ Hàng Thành Công!');
 }
 
@@ -600,7 +599,7 @@ function updateCartProduct(code, nQuantity) {
             p.quantity = nQuantity;
         }
     })
-    sessionStorage.setItem('LOCAL', JSON.stringify(SESSION));
+    sessionStorage.setItem('SESSION', JSON.stringify(SESSION));
     renderCartDetail();
 }
 
