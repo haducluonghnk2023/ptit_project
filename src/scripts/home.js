@@ -1,12 +1,12 @@
 // ===================== COMMON DEFINE ==================== 
-// Formatter VND
+// Định dạng VND
 const formatter = new Intl.NumberFormat('vi-VN', {
     style: 'currency',
     currency: 'VND',
     minimumFractionDigits: 0
 })
 
-// Auto Generate ID
+// Tự động tạo id
 function generateUUIDV4() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
         const r = Math.random() * 16 | 0;
@@ -19,7 +19,7 @@ function generateUUIDV4() {
 let DATABASE = localStorage.getItem('DATABASE') ? JSON.parse(localStorage.getItem('DATABASE')) : {
     PRODUCTS: [],
     ACCOUNTS: [
-        // Set User Default role ADMIN
+        // đặt role ADMIN
         {
             ID: generateUUIDV4(),
             username: "Hạ Đức Lương",
@@ -35,42 +35,38 @@ let DATABASE = localStorage.getItem('DATABASE') ? JSON.parse(localStorage.getIte
 
 localStorage.setItem('DATABASE', JSON.stringify(DATABASE));
 
-// Get table to use
+// Nhận bảng để sử dụng
 let PRODUCTS = DATABASE.PRODUCTS;
 let ACCOUNTS = DATABASE.ACCOUNTS;
 let ORDERS = DATABASE.ORDERS;
 
-// ==================== LOCAL STORE ==========================
-let LOCAL = JSON.parse(localStorage.getItem('storeData')) || [];
-// console.log(LOCAL);
+// ==================== SESSION STORE ==========================
+let SESSION = sessionStorage.getItem('SESSION') ? JSON.parse(sessionStorage.getItem('SESSION')) : null;
 
-// ========================================= CART CLIENT ===========================================
+// ========================================= Giở hàng khách hàng ===========================================
 let btn_cart = document.getElementById('btn-cart');
 let cart_overlay = document.getElementById('cart-overlay');
 let close_cart = document.getElementById('close-cart');
 let cart_tbody = document.getElementById('cart-tbody');
-let cart_quantity = document.getElementById('cart-quantity');
+// let cart_quantity = document.getElementById('cart-quantity');
 
 btn_cart.addEventListener('click', cartOverlayOn);
 close_cart.addEventListener('click', cartOverlayOff);
-
 function cartOverlayOn() {
     cart_overlay.style.display = 'block';
     renderCartItems();
 }
-
 function cartOverlayOff() {
     cart_overlay.style.display = 'none';
 }
 
-// Cart Render Items
+// Giỏ hàng hiển thị các mặt hàng
 function renderCartItems() {
     let checkout = document.getElementById('checkout');
     let total_inner = document.getElementById('total');
-    let products = LOCAL.storeData;
+    let products = SESSION.storeData;
     let contents = '';
     let total = 0;
-
     if (products === undefined || products.length === 0) {
         total_inner.innerHTML = `<p class="text-center">Không có sản phẩm trong giỏ.</p>`;
         checkout.style.display = 'none';
@@ -102,10 +98,11 @@ function renderCartItems() {
         cart_tbody.innerHTML = contents;
     }
 }
-renderCartItems();
+// renderCartItems();
 
 
-// ========================================= FORM ACCOUNT CLIENT ===========================================
+
+// ========================================= Mẫu tài khoản khách hàng ===========================================
 let regiseter_form = document.getElementById('regiseter-form');
 let login_form = document.getElementById('login-form');
 let login_form_area = document.getElementById('login-form-area');
@@ -124,19 +121,19 @@ function showSignForm() {
     regiseter_form_area.style.display = 'none';
 }
 
-// ********************** REGISTER ACCOUNT **********************
-// Declare Form Input
+// ********************** Đăng kí tài khoản **********************
+// Khai báo biểu mẫu
 let name = document.getElementById('name');
 let number = document.getElementById('number');
 let address = document.getElementById('address');
 let email = document.getElementById('email');
 let password = document.getElementById('password');
-let condition = document.getElementById('condition');
+// let condition = document.getElementById('condition');
 
 let register_btn = document.getElementById('register');
 register_btn.addEventListener('click', addNewAccount);
 
-function addNewAccount(name) {
+function addNewAccount() {
     let account = {
         ID: generateUUIDV4(),
         username: name.value,
@@ -167,8 +164,7 @@ function validateFormRegister() {
             input.style.border = "1px solid #ced4da";
         }
     });
-
-    // Stupid again :))
+    
     if (check > 0) {
         register_btn.disabled = true;
         return false;
@@ -177,7 +173,7 @@ function validateFormRegister() {
     }
 }
 
-// ********************** SIGNIN ACCOUNT **********************
+// ********************** Đăng nhập tài khoản**********************
 let email_login = document.getElementById('email-login');
 let password_login = document.getElementById('password-login');
 
@@ -200,7 +196,7 @@ function actSignIn() {
     }
 }
 
-// Authenticate Account
+// Xác thực tài khoản
 function authenticate(email_login, password_login) {
     let userIDAndRole = null;
     ACCOUNTS.forEach(account => {
@@ -214,18 +210,17 @@ function authenticate(email_login, password_login) {
     return userIDAndRole;
 }
 
-window.onload = checkLocal();
+window.onload = checkSession();
 
-// Check Session Storage
-function checkLocal() {
-    DATABASE = JSON.parse(localStorage.getItem('DATABASE'));
-
-    if (DATABASE === null) {
+// kiểm tra session storage
+function checkSession() {
+    SESSION = JSON.parse(sessionStorage.getItem('SESSION'));
+    if ( SESSION === null) {
         userAct.style.display = 'flex';
         userProfile.style.display = 'none';
         adminProfile.style.display = 'none';
     } else {
-        if (DATABASE.role === 'User') {
+        if ( SESSION.role === 'User') {
             userAct.style.display = 'none';
             userProfile.style.display = 'block';
             adminProfile.style.display = 'none';
@@ -237,7 +232,7 @@ function checkLocal() {
     }
 }
 
-// ========================================= PROFILE ACCOUNT CLIENT ===========================================
+// ========================================= Hồ sơ tài khoản khách hàng ===========================================
 userProfile.addEventListener('click', actProfileToggle);
 adminProfile.addEventListener('click', actProfileToggle);
 
@@ -249,10 +244,10 @@ logout.addEventListener('click', function () {
 })
 
 function actProfileToggle() {
-    DATABASE = JSON.parse(localStorage.getItem('DATABASE'));
+    SESSION = JSON.parse(sessionStorage.getItem('SESSION'));
 
     ACCOUNTS.forEach(function (account) {
-        if (account.ID === LOCAL.userID) {
+        if (account.ID === SESSION.userID) {
             renderProfileDetail(account);
             renderProfileOrder(account.ID);
         }
@@ -279,7 +274,7 @@ function renderProfileDetail(account) {
         manager.style.display = 'none';
     }
 
-    // *** Update User Pr0fi|e ***
+    // *** Cập nhật hồ sơ người dùng***
     let updateProfile = document.getElementById('updateProfile');
     updateProfile.addEventListener('click', updateUserProfile);
 
@@ -321,7 +316,7 @@ function renderProfileOrder(ID) {
     profileTbody.innerHTML = content;
 }
 
-// ********************** Show Profile *****************************
+// ********************** hiển thị hồ sơ *****************************
 let s_profileInfo = document.getElementById('s_profileInfo');
 let s_profileOrder = document.getElementById('s_profileOrder');
 
@@ -338,7 +333,7 @@ function showProfileOrder() {
     document.getElementById('order-info').style.display = 'block';
 }
 
-// ========================================= PRODUCT CLIENT ===========================================
+// ========================================= Sản phẩm của khách hàng ===========================================
 let owl_slide = document.getElementById('owl-slide');
 let extra_product = document.getElementById('extra-product');
 let all_product = document.getElementById('all-product');
@@ -406,7 +401,7 @@ function renderAllProduct(product) {
     all_product.innerHTML += contents;
 }
 
-// **********************  FILTER PRODUCT **********************
+// ********************** Lọc sản phẩm**********************
 let filter_option = document.getElementById('filter-option');
 filter_option.addEventListener('change', filterProduct);
 
@@ -428,7 +423,7 @@ function filterProduct() {
     }
 }
 
-// ****************** Search ********************************
+// ****************** Tìm kiếm ********************************
 let search = document.getElementById("search");
 search.addEventListener('input', actSearch);
 
@@ -441,24 +436,24 @@ function actSearch() {
     });
 }
 
-// Search Compare
+// Tìm kiếm so sánh
 function searchCompare(searchInput, productName) {
     let searchInputLower = searchInput.toLowerCase();
     let productNameLower = productName.toLowerCase();
     return productNameLower.includes(searchInputLower);
 }
 
-// ========================================= CART CLIENT ===========================================
-// ********************** ADD CART **********************
+
+// ========================================= sản phẩm trong giỏ ===========================================
+// ********************** thêm vào giỏ hàng **********************
 let addCarts = document.querySelectorAll('#addCart');
 
 addCarts.forEach(function (addCart) {
     addCart.addEventListener('click', addToCart);
 })
-
 function addToCart() {
     let productCode = this.getAttribute('data-code');
-    let products = DATABASE.ACCOUNTS;
+    let products = DATABASE.ORDERS;
     let productSaveCart = products.find(p => p.code === productCode);
 
     if (productSaveCart !== undefined) {
@@ -469,9 +464,9 @@ function addToCart() {
             productName: productName,
             price: price,
             image: image,
-            quantity: 1
+            quantity: 1,
+            // cart : []
         };
-
         let existingProduct = products.find(p => p.code === productCode);
         if (existingProduct) {
             existingProduct.quantity++;
@@ -493,28 +488,24 @@ function addToCart() {
     alert('Thêm Sản Phẩm Vào Giỏ Hàng Thành Công!');
 }
 
-// ********************** CART DETAIL **********************
+
+// ********************** hiển thị hàng trong giỏ **********************
 let checkout = document.getElementById('checkout');
 let body_content = document.getElementById('body-content');
 let body_cart = document.getElementById('body-cart');
-
 let cart_table = document.getElementById('cart-table');
-
 checkout.addEventListener('click', showCartDetail);
-
 function showCartDetail() {
     cartOverlayOff();
     body_content.style.display = 'none';
     body_cart.style.display = 'block';
     renderCartDetail();
 }
-
 function renderCartDetail() {
-    let products = DATABASE.ACCOUNTS;
+    let products = DATABASE.ORDERS;
     let contents = '';
     let total_price = 0;
     let total_quantity = 0;
-
     products.forEach(p => {
         contents += `
         <tr>
@@ -536,7 +527,6 @@ function renderCartDetail() {
         total_price += p.price * p.quantity;
         total_quantity += p.quantity;
     });
-
     cart_table.innerHTML = contents;
     document.getElementById('payment-info').innerHTML = `
         <div class="col-6">
@@ -554,10 +544,9 @@ function renderCartDetail() {
     `;
     loadUserInfo();
 }
-
 function loadUserInfo() {
     ACCOUNTS.forEach(function (account) {
-        if (account.ID === LOCAL.ID) {
+        if (account.ID === SESSION.ID) {
             renderUserInfo(account);
         }
     })
@@ -568,7 +557,6 @@ let customer_address = document.getElementById('customer-address');
 let customer_email = document.getElementById('customer-email');
 let customer_note = document.getElementById('customer-note');
 let customer_check = document.getElementById('customer-check');
-
 function renderUserInfo(account) {
     customer_name.value = account.username;
     customer_number.value = account.phoneNumber;
@@ -576,13 +564,11 @@ function renderUserInfo(account) {
     customer_email.value = account.email;
 }
 
-// ********************** CART ACTION **********************
+// ********************** các hàng động trong giỏ hàng **********************
 cart_table.addEventListener('click', actCartProduct);
-
 function actCartProduct(event) {
     let ev = event.target;
     let data_code = ev.getAttribute('data-code');
-
     if (ev.matches('#minus')) {
         let nValue = parseInt(ev.nextElementSibling.value) - 1;
         if (nValue <= 0) {
@@ -593,44 +579,38 @@ function actCartProduct(event) {
         }
         updateCartProduct(data_code, nValue);
     }
-
     if (ev.matches('#plus')) {
         let nValue = parseInt(ev.previousElementSibling.value) + 1;
         ev.previousElementSibling.value = nValue;
         updateCartProduct(data_code, nValue);
     }
-
     if (ev.matches('#remove')) {
-        let products = LOCAL.products;
+        let products = SESSION.products;
         products = products.filter(product => product.code !== data_code);
-        LOCAL.products = products;
+        SESSION.products = products;
         localStorage.setItem('LOCAL', JSON.stringify(LOCAL));
         renderCartDetail();
     }
 }
-
 function updateCartProduct(code, nQuantity) {
-    let products = LOCAL.products;
+    let products = SESSION.products;
 
     products.forEach(p => {
         if (p.code === code) {
             p.quantity = nQuantity;
         }
     })
-
-    localStorage.setItem('LOCAL', JSON.stringify(LOCAL));
+    sessionStorage.setItem('LOCAL', JSON.stringify(SESSION));
     renderCartDetail();
 }
 
-// ********************** ORDER ACTION **********************
+// ********************** hành động đặt hàng **********************
 let order_btn = document.getElementById('order');
-
 order_btn.addEventListener('click', actOrder);
-
 function actOrder() {
     let order = {
         orderId: generateUUIDV4(),
-        userID: LOCAL.userID,
+        userID: SESSION.userID,
         customerInfo: {
             customerName: customer_name.value,
             customerNumber: customer_number.value,
@@ -639,7 +619,7 @@ function actOrder() {
             customerNote: customer_note.value
         },
         payMethod: 'Giao Hàng Tại Nhà',
-        products: LOCAL.products,
+        products: SESSION.products,
         createDate: moment(new Date()).format("DD/MM/YYYY"),
         status: 'Đặt Hàng'
     }
@@ -648,8 +628,8 @@ function actOrder() {
         ORDERS.push(order);
         localStorage.setItem('DATABASE', JSON.stringify(DATABASE));
         alert('Đặt hàng thành công !');
-        LOCAL.products = [];
-        localStorage.setItem('LOCAL', JSON.stringify(LOCAL));
+        SESSION.products = [];
+        sessionStorage.setItem('SESSION', JSON.stringify(LOCAL));
         location.reload();
     }
     order_btn.disabled = false;
@@ -667,8 +647,6 @@ function validateForm() {
             input.style.border = "1px solid #ced4da";
         }
     })
-
-  
     if (check > 0) {
         order_btn.disabled = true;
         return false;

@@ -1,12 +1,12 @@
-// ===================== COMMON DEFINE ==================== 
-// Formatter VND
+// ===================== ĐỊNH NGHĨA CHUNG ==================== 
+// Định dạng VND
 const formatter = new Intl.NumberFormat('it-IT', {
     style: 'currency',
     currency: 'VND',
     minimumFractionDigits: 0
 })
 
-// Auto Generate ID
+// Tự động tạo id
 function generateUUIDV4() {
     return 'xxx-xxy'.replace(/[xy]/g, function (c) {
         let r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
@@ -18,7 +18,7 @@ function generateUUIDV4() {
 let DATABASE = localStorage.getItem('DATABASE') ? JSON.parse(localStorage.getItem('DATABASE')) : {
     PRODUCTS: [],
     ACCOUNTS: [
-        // Set User Default role ADMIN
+        // Đặt vai trò mặc định của người dùng ADMIN
         {
             ID: generateUUIDV4(),
             username: "Hạ Đức Lương",
@@ -34,18 +34,18 @@ let DATABASE = localStorage.getItem('DATABASE') ? JSON.parse(localStorage.getIte
 
 localStorage.setItem('DATABASE', JSON.stringify(DATABASE));
 
-// Get table to use
+// Nhận bảng để sử dụng
 let PRODUCTS = DATABASE.PRODUCTS;
 let ACCOUNTS = DATABASE.ACCOUNTS;
 let ORDERS = DATABASE.ORDERS;
 
-// ********************************* Generate DATA ********************************
+// ********************************* Tạo dữ liệu ********************************
 
 let generate = document.getElementById('generate');
 generate.addEventListener('click', generateData);
 
 function generateData() {
-    // read json file
+    // đọc file json
     $.getJSON("script/data", function (data) {
         DATABASE.PRODUCTS = data.PRODUCTS;
         localStorage.setItem('DATABASE', JSON.stringify(DATABASE));
@@ -56,7 +56,7 @@ function generateData() {
 
 // ========================================= PRODUCT MANAGER ===========================================
 
-// Declare form input
+//Khai báo biểu mẫu nhập vào
 let code = document.getElementById('code');
 let category = document.getElementById('category');
 let name = document.getElementById('name');
@@ -66,7 +66,7 @@ let amount = document.getElementById('amount');
 let entry = document.getElementById('entry');
 let image = document.getElementById("image");
 
-// Element Define
+// Xác định phần tử
 let tbody = document.getElementById('tbody');
 
 window.onload = loadProductManager(PRODUCTS);
@@ -77,7 +77,7 @@ function loadProductManager(PRODUCTS) {
     });
 }
 
-//  Default Page
+//Trang chủ
 function renderProduct(product) {
     let contents = `
         <tr>
@@ -88,7 +88,7 @@ function renderProduct(product) {
             <td>${product.productName}</td>
             <td>${product.idcategory === "0" ? "Giày Nam" : product.idcategory === "1" ? "Giày Nữ" : "Phụ Kiện"}</td>
             <td>${formatter.format(product.price)}</td>
-            <td>${product.material}</td>
+            <td>${product.material}</td>    
             <td>${product.amount}</td>
             <td>${product.entry}</td>
             <td class="text-center">
@@ -97,46 +97,11 @@ function renderProduct(product) {
                 <i class="fas fa-info-circle text-success" data-code="${product.code}" id="detail" data-toggle="modal" data-target="#productModal"></i>
             </td>
     </tr>`;
-
     tbody.innerHTML += contents;
 }
 
-// $(document).ready(function() {
-//     $('#add_new_product').click(function() {
-//         // Lấy thông tin sản phẩm từ các trường nhập liệu
-//         var code = $('#code').val();
-//         var category = $('#product_category').val();
-//         var name = $('#name').val();
-//         var material = $('#material').val();
-//         var price = $('#price').val();
-//         var amount = $('#amount').val();
-//         var entry = $('#entry').val();
-        
-//         // Gửi thông tin sản phẩm đến máy chủ để thêm sản phẩm mới vào cơ sở dữ liệu
-//         // Sử dụng AJAX hoặc Fetch API để gửi dữ liệu và xử lý phản hồi từ máy chủ
-//     });
-//     $('#update_product').click(function() {
-//         // Lấy thông tin sản phẩm từ các trường nhập liệu
-//         var code = $('#code').val();
-//         var category = $('#product_category').val();
-//         var name = $('#name').val();
-//         var material = $('#material').val();
-//         var price = $('#price').val();
-//         var amount = $('#amount').val();
-//         var entry = $('#entry').val();
-        
-//         // Gửi thông tin sản phẩm đến máy chủ để cập nhật sản phẩm trong cơ sở dữ liệu
-//         // Sử dụng AJAX hoặc Fetch API để gửi dữ liệu và xử lý phản hồi từ máy chủ
-//     });
-//     $('#search_product').on('input', function() {
-//         var searchTerm = $(this).val();
-        
-//         // Gửi yêu cầu tìm kiếm sản phẩm đến máy chủ và nhận kết quả trả về
-//         // Hiển thị kết quả tìm kiếm trên trang web
-//     });
-// })
 
-// Add New Product
+// thêm mới sản phẩm
 let add_new = document.getElementById('add_new_product');
 add_new.addEventListener('click', actAddProduct);
 
@@ -153,14 +118,14 @@ function actAddProduct() {
         image: images.slice(12, images.length) ,
     }
 
-    if (validateForm(product) && !checkExistProductCode(product.code)) {
+    if (validateForm(product) &&!checkExistProductCode(product.code) ){
         // Thêm sản phẩm vào mảng và cập nhật Local Storage
         PRODUCTS.push(product);
         localStorage.setItem('DATABASE', JSON.stringify(DATABASE));
         renderProduct(product);
         notificationAction("Thêm Sản Phẩm Thành Công.", "#12e64b");
 
-        // Clear Form Input
+        // Xóa biểu mẫu nhập
         let form_id = document.getElementById('form-id');
         form_id.querySelectorAll('input').forEach(function (input) {
             input.value = '';
@@ -179,14 +144,14 @@ function actAddProduct() {
 }
 
 
-// Validate Form
+//XÁc thực
 function validateForm(product) {
     if (product.code === "" || product.productName === ""
         || product.material === "" || product.price === ""
         || product.amount === "" || product.entry === "" || product.image === "") {
         notificationAction("Vui Lòng Điền Đầy Đủ Thông Tin.", "#e61212");
 
-        // Error Input
+        //Lỗi đầu vào
         let form_id = document.getElementById('form-id');
         let form_input = form_id.querySelectorAll('input');
 
@@ -204,7 +169,7 @@ function validateForm(product) {
     return true;
 }
 
-// // Check exist ProductCode
+// // kiểm tra mã sản phẩm
 function checkExistProductCode(code) {
     let check = 0;
     PRODUCTS.forEach(function (product) {
@@ -223,7 +188,7 @@ function checkExistProductCode(code) {
 
 }
 
-// // Display notification
+// // hiển thị thông báo
 let notifi = document.getElementById('notifi');
 let notifi_content = document.getElementById('notifi-content');
 
@@ -239,7 +204,7 @@ function notificationAction(content, color) {
         }, 3000);
 }
 
-// Delete And Update Product
+//Xóa và cập nhật sản phẩm
 tbody.addEventListener('click', actProduct);
 
 function actProduct(event) {
@@ -249,26 +214,25 @@ function actProduct(event) {
         return;
     }
 
-    // Edit
+    // Sửa
     if (ev.matches('#edit')) {
-        let update = document.getElementById('update');
+        let update = document.getElementById('update_product');
         let productFilter = PRODUCTS.filter(product => product.code === data_code);
 
         code.value = productFilter[0].code;
-        category.value = productFilter[0].idcategory;
+        product_category.value = productFilter[0].idcategory;
         name.value = productFilter[0].productName;
         material.value = productFilter[0].material;
         price.value = productFilter[0].price;
         amount.value = productFilter[0].amount;
         entry.value = productFilter[0].entry;
-        image.value = productFilter[0].images;
 
         add_new.style.display = "none";
         update.style.display = "inline-block";
         code.disabled = true;
         document.documentElement.scrollTop = 0;
     }
-    // Detail
+    // Chi tiết
     if (ev.matches('#detail')) {
         let product_detail = document.getElementById('product-detail');
         let productDetail = PRODUCTS.filter(product => product.code === data_code);
@@ -281,7 +245,7 @@ function actProduct(event) {
         `;
         product_detail.innerHTML = modals;
     }
-    // Delete
+    // Xóa
     if (ev.matches('#delete')) {
         PRODUCTS = PRODUCTS.filter(product => product.code !== data_code);
         DATABASE.PRODUCTS = PRODUCTS;
@@ -291,16 +255,15 @@ function actProduct(event) {
     }
 }
 
-// Edit
+// Sửa
 let update = document.getElementById('update_product');
 update.addEventListener('click', actUpdate);
 
-function actUpdate(name) {
+function actUpdate() {
     PRODUCTS.forEach(function (product) {
         if (product.code === code.value) {
-
             let images = image.value;
-            product.idcategory = category.value;
+            product.idcategory = product_category.value;
             product.productName = name.value;
             product.material = material.value;
             product.price = price.value;
@@ -316,10 +279,9 @@ function actUpdate(name) {
     })
 }
 
-// Search
+// Tìm kiếm
 let search = document.getElementById("search");
 search.addEventListener('input', actSearch);
-
 function actSearch() {
     let searchInput = search.value;
     let productCompare = PRODUCTS.filter(product => searchCompare(searchInput, product.productName));
@@ -328,18 +290,15 @@ function actSearch() {
         renderProduct(product);
     });
 }
-
-// Search Compare
+//Tìm kiếm so sánh
 function searchCompare(searchInput, productName) {
     let searchInputLower = searchInput.toLowerCase();
     let productNameLower = productName.toLowerCase();
     return productNameLower.includes(searchInputLower);
 }
-
-
 // ========================================= ACCOUNT MANAGER ===========================================
 
-// Show Tab
+// hiển thị tab
 let s_product = document.getElementById('s_product');
 let s_user = document.getElementById('s_user');
 let s_order = document.getElementById('s_order');
@@ -373,7 +332,7 @@ function showOrderManager() {
 
 }
 
-// ========================================= OPEN TAB MANAGER ===========================================
+// ========================================= Mở quản lí tab manager ===========================================
 
 let user_tbody = document.getElementById('user_tbody');
 
@@ -393,7 +352,7 @@ function renderAccount() {
     user_tbody.innerHTML = contents;
 }
 
-// ========================================= ORDER MANAGER ===========================================
+// ========================================= Quản lí đơn giản  ===========================================
 
 let order_tbody = document.getElementById('order_tbody');
 
