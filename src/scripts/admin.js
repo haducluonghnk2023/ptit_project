@@ -101,17 +101,50 @@ function renderProduct(product) {
     tbody.innerHTML += contents;
 }
 
-// Add New Product
-let add_new = document.getElementById('add_new');
-add_new.addEventListener('click', actAddProduct);
+// $(document).ready(function() {
+//     $('#add_new_product').click(function() {
+//         // Lấy thông tin sản phẩm từ các trường nhập liệu
+//         var code = $('#code').val();
+//         var category = $('#product_category').val();
+//         var name = $('#name').val();
+//         var material = $('#material').val();
+//         var price = $('#price').val();
+//         var amount = $('#amount').val();
+//         var entry = $('#entry').val();
+        
+//         // Gửi thông tin sản phẩm đến máy chủ để thêm sản phẩm mới vào cơ sở dữ liệu
+//         // Sử dụng AJAX hoặc Fetch API để gửi dữ liệu và xử lý phản hồi từ máy chủ
+//     });
+//     $('#update_product').click(function() {
+//         // Lấy thông tin sản phẩm từ các trường nhập liệu
+//         var code = $('#code').val();
+//         var category = $('#product_category').val();
+//         var name = $('#name').val();
+//         var material = $('#material').val();
+//         var price = $('#price').val();
+//         var amount = $('#amount').val();
+//         var entry = $('#entry').val();
+        
+//         // Gửi thông tin sản phẩm đến máy chủ để cập nhật sản phẩm trong cơ sở dữ liệu
+//         // Sử dụng AJAX hoặc Fetch API để gửi dữ liệu và xử lý phản hồi từ máy chủ
+//     });
+//     $('#search_product').on('input', function() {
+//         var searchTerm = $(this).val();
+        
+//         // Gửi yêu cầu tìm kiếm sản phẩm đến máy chủ và nhận kết quả trả về
+//         // Hiển thị kết quả tìm kiếm trên trang web
+//     });
+// })
 
+// Add New Product
+let add_new = document.getElementById('add_new_product');
+add_new.addEventListener('click', actAddProduct);
 
 function actAddProduct() {
     let images = image.value;
-
     let product = {
         code: code.value,
-        idcategory: category.value,
+        idcategory: product_category.value,
         productName: name.value,
         material: material.value,
         price: price.value,
@@ -171,7 +204,7 @@ function validateForm(product) {
     return true;
 }
 
-// Check exist ProductCode
+// // Check exist ProductCode
 function checkExistProductCode(code) {
     let check = 0;
     PRODUCTS.forEach(function (product) {
@@ -190,7 +223,7 @@ function checkExistProductCode(code) {
 
 }
 
-// Display notification
+// // Display notification
 let notifi = document.getElementById('notifi');
 let notifi_content = document.getElementById('notifi-content');
 
@@ -259,7 +292,7 @@ function actProduct(event) {
 }
 
 // Edit
-let update = document.getElementById('update');
+let update = document.getElementById('update_product');
 update.addEventListener('click', actUpdate);
 
 function actUpdate(name) {
